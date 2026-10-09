@@ -1,0 +1,29 @@
+
+# Java / Spring Boot
+target/
+*.class
+.gradle/
+build/
+
+# Angular / Node.js
+node_modules/
+dist/
+.angular/
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# macOS
+.DS_Store
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+application-local.properties
+
+# Logs
+*.log
