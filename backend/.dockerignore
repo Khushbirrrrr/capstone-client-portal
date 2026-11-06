@@ -1,4 +1,5 @@
 target
 .git
+.env
 src/test
 cookies.txt
