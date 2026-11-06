@@ -1,49 +1,18 @@
-<div class="projects-page">
-
-  <header>
-    <h1>Capstone Client Portal</h1>
-    <p>Sheridan College | Approved Projects</p>
-  </header>
-
-  <main>
-    <a routerLink="/student-dashboard" class="back-link">
-      ← Back to Dashboard
-    </a>
-
-    <h2>Browse Approved Projects</h2>
-    <p class="subtitle">
-      Explore capstone opportunities for {{ currentTerm }}.
-    </p>
-@if (loading) {
-  <p>Loading approved projects...</p>
-}
-
-@if (errorMessage) {
-  <p class="error-message">{{ errorMessage }}</p>
-}
-    <div class="project-grid">
-
-      @for (project of approvedProjects; track project.id) {
-        <article class="project-card">
-
-          <span class="status">Approved</span>
-
-          <h3>{{ project.title }}</h3>
-
-          <p>{{ project.description }}</p>
-
-          <div class="project-footer">
-            <span>Project #{{ project.id }}</span>
-            <span>{{ project.term }}</span>
-          </div>
-
-        </article>
-      } @empty {
-        <p class="empty-state">
-          No approved projects available yet.
-        </p>
-      }
-
-    </div>
+<div class="page">
+  <header class="site-header"><div><p class="eyebrow">STUDENT PORTAL</p><h1>Approved projects</h1><p>Explore {{ currentTerm }} projects and build your ranked list.</p></div><a routerLink="/student-dashboard">Dashboard</a></header>
+  <main class="content">
+    <div class="toolbar"><a routerLink="/student-dashboard">← Dashboard</a><a class="button" routerLink="/preferences">My preferences →</a></div>
+    @if (loading) { <p>Loading approved projects…</p> }
+    @if (errorMessage) { <p class="error" role="alert">{{ errorMessage }}</p> }
+    @if (!loading && !errorMessage) {
+      <div class="grid">
+        @for (project of approvedProjects; track project.id) {
+          <article class="card"><span class="pill">Approved</span><h2>{{ project.title }}</h2><p>{{ project.description }}</p>
+            <p class="meta">Project #{{ project.id }} · {{ project.term }}</p>
+            <a class="button" [routerLink]="['/projects', project.id]">View details</a>
+          </article>
+        } @empty { <p class="card">No approved projects available. Ask faculty to publish projects for this term.</p> }
+      </div>
+    }
   </main>
 </div>

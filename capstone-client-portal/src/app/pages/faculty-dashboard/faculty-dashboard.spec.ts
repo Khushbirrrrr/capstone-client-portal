@@ -1,23 +1,18 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { FacultyDashboard } from './faculty-dashboard';
 
 describe('FacultyDashboard', () => {
-  let component: FacultyDashboard;
-  let fixture: ComponentFixture<FacultyDashboard>;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FacultyDashboard]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(FacultyDashboard);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+      imports: [FacultyDashboard], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()]
+    }).compileComponents();
   });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('creates the page', () => {
+    const fixture = TestBed.createComponent(FacultyDashboard);
+    fixture.detectChanges();
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

@@ -1,25 +1,47 @@
 services:
   postgres:
     image: postgres:16
-    container_name: capstone-postgres
     restart: unless-stopped
-
     environment:
-      POSTGRES_DB: capstone_db
-      POSTGRES_USER: capstone_user
-      POSTGRES_PASSWORD: capstone_dev_password
-
+      POSTGRES_DB: ${POSTGRES_DB:-capstone_db}
+      POSTGRES_USER: ${DB_USERNAME:-capstone_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your local .env file}
     ports:
       - "127.0.0.1:5432:5432"
-
     volumes:
       - capstone_pgdata:/var/lib/postgresql/data
-
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U capstone_user -d capstone_db"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-capstone_db}
+      DB_USERNAME: ${DB_USERNAME:-capstone_user}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your local .env file}
+      PORTAL_DEFAULT_TERM: ${PORTAL_DEFAULT_TERM:-Fall 2026}
+      PORTAL_DEMO_SEED: ${PORTAL_DEMO_SEED:-false}
+      PORTAL_DEMO_STUDENT_USERNAME: ${PORTAL_DEMO_STUDENT_USERNAME:-}
+      PORTAL_DEMO_STUDENT_PASSWORD: ${PORTAL_DEMO_STUDENT_PASSWORD:-}
+      PORTAL_DEMO_FACULTY_USERNAME: ${PORTAL_DEMO_FACULTY_USERNAME:-}
+      PORTAL_DEMO_FACULTY_PASSWORD: ${PORTAL_DEMO_FACULTY_PASSWORD:-}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+    # No public backend port: traffic goes through the frontend reverse proxy.
+
+  frontend:
+    build: ./capstone-client-portal
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:8088:80"
 
 volumes:
   capstone_pgdata:

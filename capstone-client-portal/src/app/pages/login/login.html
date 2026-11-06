@@ -1,39 +1,20 @@
 <div class="login-container">
   <div class="login-card">
-    <h1>Capstone Client Portal</h1>
-    <p class="subtitle">Sheridan College</p>
-
-    <h2>Sign In</h2>
-    <p>Enter your Sheridan credentials to continue.</p>
-
-   <form (ngSubmit)="onLogin()">
-  <label for="email">Sheridan Email</label>
-  <input
-    id="email"
-    type="email"
-    name="email"
-    [(ngModel)]="email"
-    required
-  />
-
-  <label for="password">Password</label>
-  <input
-    id="password"
-    type="password"
-    name="password"
-    [(ngModel)]="password"
-    required
-  />
-
-  @if (errorMessage) {
-    <p class="error">{{ errorMessage }}</p>
-  }
-
-  <button type="submit" [disabled]="isLoading">
-    {{ isLoading ? 'Signing In...' : 'Sign In' }}
-  </button>
-</form>
-
-
+    <p class="eyebrow">CAPSTONE CLIENT PORTAL</p>
+    <h1>Welcome back</h1>
+    <p class="subtitle">Student & faculty sign-in</p>
+    <h2>Sign in with your portal account</h2>
+    <p class="notice">This is not Sheridan Single Sign-On. Do not enter your Sheridan username or password.</p>
+    <form (ngSubmit)="onLogin()">
+      <label for="username">Portal username</label>
+      <input id="username" type="text" name="username" [(ngModel)]="username"
+        autocomplete="username" placeholder="your-portal-username" required minlength="3" maxlength="40" />
+      <label for="password">Portal password</label>
+      <input id="password" type="password" name="password" [(ngModel)]="password"
+        autocomplete="current-password" required />
+      @if (errorMessage) { <p class="error" role="alert">{{ errorMessage }}</p> }
+      <button type="submit" [disabled]="isLoading">{{ isLoading ? 'Signing in…' : 'Sign in' }}</button>
+    </form>
+    <p class="small">Demo accounts are enabled by the project owner using local environment variables.</p>
   </div>
 </div>

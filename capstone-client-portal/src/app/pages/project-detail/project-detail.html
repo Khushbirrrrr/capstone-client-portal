@@ -1,0 +1,15 @@
+<div class="page">
+  <header class="site-header"><div><p class="eyebrow">US10 · PROJECT DETAILS</p><h1>Project information</h1></div><a routerLink="/student-dashboard">Dashboard</a></header>
+  <main class="content">
+    <a routerLink="/projects">← Back to projects</a>
+    @if (loading) { <p>Loading project…</p> }
+    @if (errorMessage) { <p class="error" role="alert">{{ errorMessage }}</p> }
+    @if (project) {
+      <article class="card detail"><span class="pill">{{ project.status }}</span><h2>{{ project.title }}</h2>
+        <p class="meta">Project #{{ project.id }} | {{ project.term }}</p>
+        <h3>Description</h3><p class="description">{{ project.description }}</p>
+        <a class="button" [routerLink]="['/preferences']" [queryParams]="{ add: project.id }">Add to my preferences →</a>
+      </article>
+    }
+  </main>
+</div>

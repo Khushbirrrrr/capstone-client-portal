@@ -1,63 +1,45 @@
-
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [FormsModule],
-  templateUrl: './login.html',
-  styleUrl: './login.scss'
+  selector: 'app-login', standalone: true, imports: [FormsModule],
+  templateUrl: './login.html', styleUrl: './login.scss'
 })
 export class Login {
   private auth = inject(Auth);
   private router = inject(Router);
-
-  email = '';
+  username = '';
   password = '';
   errorMessage = '';
   isLoading = false;
 
   onLogin(): void {
     this.errorMessage = '';
-
-    const email = this.email.trim().toLowerCase();
-
-    if (!email.endsWith('@sheridancollege.ca')) {
-      this.errorMessage = 'Please enter a valid Sheridan email address.';
+    const username = this.username.trim().toLowerCase();
+    // Explicitly reject school addresses to avoid confusion with Sheridan SSO.
+    if (!/^[a-z][a-z0-9._-]{2,39}$/.test(username)) {
+      this.errorMessage = 'Enter your Capstone Portal username, not a Sheridan email.';
       return;
     }
-
     if (!this.password) {
-      this.errorMessage = 'Please enter your password.';
+      this.errorMessage = 'Please enter your portal password.';
       return;
     }
-
     this.isLoading = true;
-
-    this.auth.login(email, this.password).subscribe({
-      next: (response) => {
+    this.auth.login(username, this.password).subscribe({
+      next: response => {
         this.isLoading = false;
-
-        if (response.role === 'STUDENT') {
-          this.router.navigate(['/student-dashboard']);
-        } else if (response.role === 'FACULTY') {
-          this.router.navigate(['/faculty-dashboard']);
-        } else {
-          this.errorMessage = 'Unknown user role.';
-        }
+        this.password = '';
+        void this.router.navigate([response.role === 'FACULTY' ? '/faculty-dashboard' : '/student-dashboard']);
       },
-      error: (error) => {
+      error: error => {
         this.isLoading = false;
-
-        if (error.status === 401) {
-          this.errorMessage = 'Invalid email or password.';
-        } else {
-          this.errorMessage =
-            'Unable to connect to the server. Please try again.';
-        }
+        this.password = '';
+        this.errorMessage = error.status === 401 ? 'Invalid portal username or password.' :
+          error.status === 400 ? 'Use a portal username, not an email address.' :
+          'Could not sign in. Make sure the backend is running and try again.';
       }
     });
   }

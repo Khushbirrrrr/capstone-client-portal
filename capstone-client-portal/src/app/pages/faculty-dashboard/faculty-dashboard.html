@@ -1,16 +1,6 @@
-<div class="dashboard">
-  <header>
-    <h1>Capstone Client Portal</h1>
-    <p>Sheridan College | Faculty Dashboard</p>
-  </header>
-
-  <main>
-    <h2>Welcome, Faculty!</h2>
-    <p>Manage and review capstone projects.</p>
-
-    <div class="card">
-      <h3>Project Administration</h3>
-      <p>Project review and approval features will be added in a future sprint.</p>
-    </div>
-  </main>
+<div class="page">
+  <header class="site-header"><div><p class="eyebrow">CAPSTONE CLIENT PORTAL</p><h1>Faculty dashboard</h1><p>Manage teaching terms and student groups.</p></div><button class="secondary" (click)="logout()">Sign out</button></header>
+  <main class="content"><div class="grid"><article class="card"><h2>Terms and student groups</h2><p>Create teaching terms, activate the current term, and organize portal student usernames into groups.</p>
+    <a class="button" routerLink="/faculty-management">Manage terms & groups →</a></article>
+    <article class="card"><h2>Coming in Sprint 3</h2><p>Project assignment recommendations and faculty matching review are planned for the next sprint.</p></article></div></main>
 </div>

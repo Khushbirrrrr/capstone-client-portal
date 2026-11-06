@@ -1,8 +1,4 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
-export const serverRoutes: ServerRoute[] = [
-  {
-    path: '**',
-    renderMode: RenderMode.Prerender
-  }
-];
+// Authenticated student pages must not be statically pre-rendered during build.
+export const serverRoutes: ServerRoute[] = [{ path: '**', renderMode: RenderMode.Client }];

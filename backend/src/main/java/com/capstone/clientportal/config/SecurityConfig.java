@@ -1,4 +1,3 @@
-
 package com.capstone.clientportal.config;
 
 import org.springframework.context.annotation.Bean;
@@ -11,81 +10,33 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
-
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Temporary configuration for local Sprint 1 demo
-            .csrf(csrf -> csrf.disable())
-
+            // CSRF is essential for cookie/session-based authentication.
+            // The browser sends this token in X-XSRF-TOKEN for POST/PUT/DELETE requests.
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                // Match Angular's unmasked X-XSRF-TOKEN header, not Spring's default XOR representation.
+                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
             .authorizeHttpRequests(auth -> auth
-
-                // Public endpoints
-                .requestMatchers(
-                    HttpMethod.POST,
-                    "/api/auth/login"
-                ).permitAll()
-
-                .requestMatchers(
-                    "/api/health"
-                ).permitAll()
-
-                // Student-only project catalogue
-                .requestMatchers(
-                    HttpMethod.GET,
-                    "/api/projects",
-                    "/api/projects/**"
-                ).access((authentication, context) -> {
-
-                    var authResult = authentication.get();
-
-                    if (authResult == null
-                            || !authResult.isAuthenticated()
-                            || authResult instanceof
-                               org.springframework.security.authentication
-                                   .AnonymousAuthenticationToken) {
-
-                        return new org.springframework.security
-                            .authorization.AuthorizationDecision(false);
-                    }
-
-                    boolean isStudent = authResult
-                        .getAuthorities()
-                        .stream()
-                        .anyMatch(authority ->
-                            authority.getAuthority()
-                                .equals("ROLE_STUDENT")
-                        );
-
-                    return new org.springframework.security
-                        .authorization.AuthorizationDecision(isStudent);
-                })
-
-                // All remaining endpoints require authentication
-                .anyRequest().authenticated()
-            )
-
-            // Return 401 for unauthenticated requests
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(
-                    new HttpStatusEntryPoint(
-                        HttpStatus.UNAUTHORIZED
-                    )
-                )
-            );
-
+                .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("FACULTY")
+                .requestMatchers("/api/preferences/**").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.GET, "/api/projects", "/api/projects/**").hasRole("STUDENT")
+                .requestMatchers("/error").permitAll()
+                .anyRequest().authenticated())
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
         return http.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 }
-

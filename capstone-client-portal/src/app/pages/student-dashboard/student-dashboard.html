@@ -1,17 +1,7 @@
-<div class="dashboard">
-  <header>
-    <h1>Capstone Client Portal</h1>
-    <p>Sheridan College | Student Dashboard</p>
-  </header>
-
-  <main>
-    <h2>Welcome, Student!</h2>
-    <p>Explore available capstone projects.</p>
-
-    <div class="card">
-      <h3>Browse Approved Projects</h3>
-      <p>View capstone projects approved by faculty.</p>
-      <button routerLink="/projects">Browse Projects</button>
-    </div>
+<div class="page">
+  <header class="site-header"><div><p class="eyebrow">CAPSTONE CLIENT PORTAL</p><h1>Student dashboard</h1><p>Explore approved projects and submit your preferences.</p></div><button class="secondary" (click)="logout()">Sign out</button></header>
+  <main class="content"><h2>Welcome to your Capstone Portal</h2><p>Your account is separate from Sheridan Single Sign-On.</p>
+    <div class="grid"><article class="card"><h2>Browse approved projects</h2><p>Explore project summaries and open full details.</p><a class="button" routerLink="/projects">Browse projects →</a></article>
+    <article class="card"><h2>My ranked preferences</h2><p>Rank up to five projects and submit or update your choices.</p><a class="button" routerLink="/preferences">Manage preferences →</a></article></div>
   </main>
 </div>

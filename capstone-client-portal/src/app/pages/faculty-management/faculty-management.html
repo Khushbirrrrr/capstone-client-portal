@@ -1,0 +1,33 @@
+<div class="page">
+  <header class="site-header"><div><p class="eyebrow">US08 · FACULTY MANAGEMENT</p><h1>Terms & student groups</h1><p>Manage the teaching term and organize student portal accounts.</p></div><a routerLink="/faculty-dashboard">Faculty dashboard</a></header>
+  <main class="content"><a routerLink="/faculty-dashboard">← Faculty dashboard</a>
+    @if (errorMessage) { <p role="alert" class="error">{{ errorMessage }}</p> }
+    @if (message) { <p role="status" class="success">{{ message }}</p> }
+    @if (loading) { <p>Loading…</p> }
+    @if (!loading) {
+      <div class="split"><section class="card"><h2>Teaching terms</h2>
+        @for (term of terms; track term.id) {
+          <div class="item"><span>{{ term.name }} @if(term.active) { <span class="pill">Active</span> }</span>
+            <button class="secondary" type="button" [disabled]="term.active" (click)="activate(term.id)">Make active</button></div>
+        } @empty { <p>No teaching terms exist.</p> }
+        <form (ngSubmit)="createTerm()"><label for="term">New term</label><input id="term" name="term" [(ngModel)]="termName" placeholder="Winter 2027" required />
+        <button type="submit" [disabled]="saving">Add term</button></form>
+      </section>
+      <section class="card"><h2>Student groups</h2>
+        <label for="selected-term">Select teaching term</label>
+        <select id="selected-term" name="selected-term" [(ngModel)]="selectedTermId" (ngModelChange)="loadGroups()">
+          @for (term of terms; track term.id) { <option [ngValue]="term.id">{{ term.name }}</option> }
+        </select>
+        @for (group of groups; track group.id) {
+          <div class="item"><span><strong>{{ group.name }}</strong><small>{{ group.members.join(', ') }}</small></span>
+            <button class="secondary" type="button" (click)="removeGroup(group.id)">Delete</button></div>
+        } @empty { <p class="muted">No groups created for this term.</p> }
+        <form (ngSubmit)="createGroup()"><label for="group-name">New group name</label>
+          <input id="group-name" name="group-name" [(ngModel)]="groupName" placeholder="Group Alpha" required />
+          <label for="members">Member usernames (comma-separated)</label>
+          <input id="members" name="members" [(ngModel)]="usernames" placeholder="student-user" required />
+          <button type="submit" [disabled]="saving || selectedTermId === null">Create group</button></form>
+      </section></div>
+    }
+  </main>
+</div>

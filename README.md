@@ -1,49 +1,85 @@
+# Capstone Client Portal — Sprint 2
 
-# Capstone Client Portal
+Solo Capstone project. Client: Professor Sasi Arun. Evaluator: Professor Liz Dancy.
+Built with Angular 20, Spring Boot (Java 21), PostgreSQL and Docker.
 
-## Project Overview
-The Capstone Client Portal is a web application designed
-to manage the project selection and allocation process
-for students and faculty of Sheridan College's Capstone course.
+## Features
 
-## Client and Evaluator
-- Client: Professor Sasi Arun
-- Evaluator: Professor Liz Dancy
-- Developer: Khushbir Singh Chahal
-- Project Type: Capstone Project (solo)
+| Story | Implementation | Frontend route | Backend endpoint |
+|---|---|---|---|
+| US07 | Sign in / sign out with **portal-only usernames** | `/login` | `/api/auth/*` |
+| US09 | Browse approved projects for the current term | `/projects` | `GET /api/projects` |
+| US10 | Open approved project details (404 for unavailable projects) | `/projects/:id` | `GET /api/projects/{id}` |
+| US11 | Select and order up to five distinct approved projects | `/preferences` | client ranking and API validation |
+| US12 | Submit / update own ranked project preferences | `/preferences` | `GET/PUT /api/preferences` |
+| US08 | Faculty: create/activate terms and create/delete student groups | `/faculty-management` | `/api/admin/*` |
+| US23 | Privacy/security: server-side role checks, credential externalization, BCrypt, CSRF and session cookies | all pages | `SecurityConfig`, `AuthController` |
 
-## Proposed Features
-- Client project proposal submission
-- Faculty project review and approval
-- Student group project browsing
-- Ranked project preferences
-- Project allocation recommendations
-- Faculty review and manual adjustments
-- Role-based access control
+**Out of scope:** automated ranking/matching/assignment (US13–US15, Sprint 3). Rankings are currently per **student account**; faculty groups are administered separately (not yet synchronized group-wide rankings). No registration or real Sheridan SSO integration.
 
-## Technology Stack
-- Frontend: Angular
-- Backend: Java Spring Boot
-- Database: PostgreSQL
-- Containers: Docker
-- Version Control: GitHub
-- Testing: JUnit and Angular tests
+## Start with Docker (recommended)
 
-## Sprint 1 Goals
-- Initialize frontend and backend
-- Configure PostgreSQL and Docker
-- Implement basic role-based access
-- Display approved projects
-- Submit ranked project preferences
-- Generate draft allocation recommendations
-- Test core functionality
+1. Install Docker Desktop on your Mac.
+2. In the root folder, copy `.env.example` to `.env`.
+3. Replace every `CHOOSE_...` placeholder with your own randomly generated **local demo** username/password. Do **not** reuse Sheridan email/SSO credentials, and do not commit `.env`.
+4. Start services:
 
-## Project Status (current)
-Sprint 1 - Planning and setup in progress.
+```bash
+docker compose up --build -d
+docker compose ps
+```
 
-## Project Management
-Trello board: https://trello.com/b/2ArA5EeW/capstone-client-portal
+5. Open **http://localhost:8088**. Log in using the portal usernames and passwords you placed in `.env`. You can demonstrate Student and Faculty dashboards.
+6. View backend logs with `docker compose logs -f backend`.
+7. Shut down with `docker compose down` (keeps PostgreSQL volume).
 
-## Documentation
-Project requirements, diagrams, test cases,
-and sprint documentation will be stored in /docs.
+**Existing Sprint 1 database:** Existing legacy email/SSO-style accounts are deactivated on first startup and their stored school emails are replaced by non-deliverable placeholders. New demo usernames/passwords come only from `.env`. The existing project records remain. Back up the database before upgrading; `ddl-auto=update` is for development only.
+
+**Important:** Changing `DB_PASSWORD` in `.env` does not reset the password of an existing initialized PostgreSQL volume. When retaining an existing volume, update that database password in PostgreSQL as well. Do not delete the volume unless you have backed it up.
+
+## Run backend and frontend separately (Mac development)
+
+From the root folder:
+
+```bash
+# In one terminal: Docker for database only
+docker compose up -d postgres
+
+# In another terminal: export local secrets and start Spring Boot
+set -a; source .env; set +a
+cd backend
+bash mvnw spring-boot:run
+
+# In another terminal: Angular dev server
+cd capstone-client-portal
+npm ci
+npm start
+```
+
+Open **http://localhost:4200**. Angular uses `proxy.conf.json` to forward `/api` calls to Spring at localhost:8080.
+
+## Verification commands
+
+```bash
+cd backend
+bash mvnw test             # H2 test profile, no live PostgreSQL required
+
+cd ../capstone-client-portal
+npm ci                    # re-install Mac-native packages, don't reuse uploaded node_modules
+npm run build
+npm test -- --watch=false # Chrome is required for Karma, if available
+```
+
+See `docs/sprint-2/TEST_PLAN.md` and `docs/sprint-2/DEMO_SCRIPT.md` for the testing matrix and demo order.
+
+## Security and hosting review required by Professor Liz
+
+- Login uses unique portal usernames, not Sheridan email credentials. Never reuse institutional passwords.
+- All demo usernames and passwords come from `.env`, which is ignored by Git. Old demo passwords, session-cookie text files, `.git` history, and node_modules are excluded from this delivery.
+- BCrypt hashes are persisted; plain-text passwords are never returned to the frontend.
+- Spring sessions use HttpOnly cookies; HTTP-changing operations require anti-CSRF tokens. Angular sends the `X-XSRF-TOKEN` header.
+- Students cannot access faculty APIs; faculty cannot submit student rankings. Preferences are fetched by the logged-in session, not a request-supplied user ID.
+- The Docker Compose example binds the frontend to `127.0.0.1` only. This is **local demo hosting**, not public deployment. A public deployment needs HTTPS/TLS termination, `SESSION_COOKIE_SECURE=true`, advisor-approved authentication/security review, reverse proxy/hosting and operational safeguards (rate limiting, DB migrations, backups, monitoring, credential recovery).
+- Any passwords that appeared in **previous Git history** must be treated as compromised and rotated. Deleting files from a ZIP does not remove old commits from GitHub. Discuss Git history cleanup with technical advisors.
+
+Project Trello board: https://trello.com/b/2ArA5EeW/capstone-client-portal
