@@ -1,4 +1,4 @@
-# Capstone Client Portal — Sprint 2
+# Capstone Client Portal — Sprint 3 preparation
 
 Solo Capstone project. Client: Professor Sasi Arun. Evaluator: Professor Liz Dancy.
 Built with Angular 20, Spring Boot (Java 21), PostgreSQL and Docker.
@@ -15,7 +15,9 @@ Built with Angular 20, Spring Boot (Java 21), PostgreSQL and Docker.
 | US08 | Faculty: create/activate terms and create/delete student groups | `/faculty-management` | `/api/admin/*` |
 | US23 | Privacy/security: server-side role checks, credential externalization, BCrypt, CSRF and session cookies | all pages | `SecurityConfig`, `AuthController` |
 
-**Out of scope:** automated ranking/matching/assignment (US13–US15, Sprint 3). Rankings are currently per **student account**; faculty groups are administered separately (not yet synchronized group-wide rankings). No registration or real Sheridan SSO integration.
+**Sprint 3 preview:** faculty can generate **draft, non-persistent** recommendations via `POST /api/matching/generate` and `/matching-preview`. This implements a limited US13 prototype only; no finalization, publishing, notifications or fully agreed matching policy yet.
+
+**Out of scope:** finalized matching/assignment and publication (remaining US13–US15 workflows). Rankings are currently per **student account**; faculty groups are administered separately. Matching preview aggregates their members' individual rankings; group-wide submission workflow is not built. No registration or real Sheridan SSO integration.
 
 ## Start with Docker (recommended)
 
@@ -83,3 +85,14 @@ See `docs/sprint-2/TEST_PLAN.md` and `docs/sprint-2/DEMO_SCRIPT.md` for the test
 - Any passwords that appeared in **previous Git history** must be treated as compromised and rotated. Deleting files from a ZIP does not remove old commits from GitHub. Discuss Git history cleanup with technical advisors.
 
 Project Trello board: https://trello.com/b/2ArA5EeW/capstone-client-portal
+
+## Sprint 3 changes under review
+
+- Faculty group form now uses an **Add member** button; 1–4 usernames, no duplicates, visible entries/removal.
+- Backend enforces the four-student limit even if someone bypasses the Angular form.
+- Login and group submission buttons require valid client-side fields.
+- Faculty-only matching preview aggregates member rankings (5 points for first place to 1 for fifth), reserves each recommended project for one group, and flags unresolved groups.
+- Matching preview is **greedy and group-ID ordered**. It may not be globally optimal; faculty should confirm the business rules before release. It does not publish anything or alter saved student rankings.
+- Added backend and Angular unit tests. **These changes have not yet been executed in the uploaded environment.** Run and capture results before claiming them as passed.
+- Docker frontend now supports runtime `PORT` and `BACKEND_HOST` via the official Nginx template processor. Local Compose still defaults to port 80 and host `backend`.
+- See `docs/sprint-3/SPRINT_3_READINESS.md` for demo flow, Trello cards, technical advisor talking points, and deployment checklist.

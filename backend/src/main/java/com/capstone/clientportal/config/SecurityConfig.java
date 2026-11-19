@@ -28,7 +28,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("FACULTY")
+                .requestMatchers("/api/admin/**", "/api/matching/**").hasRole("FACULTY")
                 .requestMatchers("/api/preferences/**").hasRole("STUDENT")
                 .requestMatchers(HttpMethod.GET, "/api/projects", "/api/projects/**").hasRole("STUDENT")
                 .requestMatchers("/error").permitAll()

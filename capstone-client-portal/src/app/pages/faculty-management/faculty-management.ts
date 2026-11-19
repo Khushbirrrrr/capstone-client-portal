@@ -13,7 +13,8 @@ export class FacultyManagement implements OnInit {
   termName = '';
   selectedTermId: number | null = null;
   groupName = '';
-  usernames = '';
+  memberInput = '';
+  memberUsernames: string[] = [];
   loading = true;
   saving = false;
   errorMessage = '';
@@ -54,22 +55,43 @@ export class FacultyManagement implements OnInit {
       error: () => this.errorMessage = 'Unable to activate term.'
     });
   }
+  // Check input immediately so Add is enabled only for a new, valid username.
+  get canAddMember(): boolean {
+    const name = this.memberInput.trim().toLowerCase();
+    return this.memberUsernames.length < 4 && /^[a-z][a-z0-9._-]{2,39}$/.test(name)
+      && !this.memberUsernames.includes(name) && !this.saving;
+  }
+  get canCreateGroup(): boolean {
+    return !this.saving && this.selectedTermId !== null
+      && this.groupName.trim().length >= 3 && this.groupName.trim().length <= 80
+      && this.memberUsernames.length >= 1 && this.memberUsernames.length <= 4;
+  }
+  addMember(): void {
+    if (!this.canAddMember) return;
+    this.memberUsernames = [...this.memberUsernames, this.memberInput.trim().toLowerCase()];
+    this.memberInput = '';
+    this.clearMessages();
+  }
+  removeMember(username: string): void {
+    this.memberUsernames = this.memberUsernames.filter(name => name !== username);
+    this.clearMessages();
+  }
   createGroup(): void {
     this.clearMessages();
     if (this.selectedTermId === null) { this.errorMessage = 'Select a term first.'; return; }
-    const memberUsernames = this.usernames.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-    if (!this.groupName.trim() || !memberUsernames.length) {
-      this.errorMessage = 'Enter a group name and one or more student portal usernames.'; return;
+    if (!this.canCreateGroup) {
+      this.errorMessage = 'Enter a valid group name and add 1 to 4 students.'; return;
     }
+    const memberUsernames = [...this.memberUsernames];
     this.saving = true;
     this.api.createGroup(this.groupName, this.selectedTermId, memberUsernames).subscribe({
       next: () => {
-        this.saving = false; this.groupName = ''; this.usernames = '';
+        this.saving = false; this.groupName = ''; this.memberInput = ''; this.memberUsernames = [];
         this.message = 'Group created.'; this.loadGroups();
       },
       error: err => {
         this.saving = false;
-        this.errorMessage = err.status === 400 ? 'Check the group name and the student portal usernames.' : 'Unable to create group.';
+        this.errorMessage = err.status === 400 ? err.error?.detail || 'Check group name, member usernames, duplicates, and the four-student limit.' : 'Unable to create group.';
       }
     });
   }
