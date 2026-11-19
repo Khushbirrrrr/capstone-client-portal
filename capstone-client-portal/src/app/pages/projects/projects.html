@@ -1,0 +1,18 @@
+<div class="page">
+  <header class="site-header"><div><p class="eyebrow">STUDENT PORTAL</p><h1>Approved projects</h1><p>Explore {{ currentTerm }} projects and build your ranked list.</p></div><a routerLink="/student-dashboard">Dashboard</a></header>
+  <main class="content">
+    <div class="toolbar"><a routerLink="/student-dashboard">← Dashboard</a><a class="button" routerLink="/preferences">My preferences →</a></div>
+    @if (loading) { <p>Loading approved projects…</p> }
+    @if (errorMessage) { <p class="error" role="alert">{{ errorMessage }}</p> }
+    @if (!loading && !errorMessage) {
+      <div class="grid">
+        @for (project of approvedProjects; track project.id) {
+          <article class="card"><span class="pill">Approved</span><h2>{{ project.title }}</h2><p>{{ project.description }}</p>
+            <p class="meta">Project #{{ project.id }} · {{ project.term }}</p>
+            <a class="button" [routerLink]="['/projects', project.id]">View details</a>
+          </article>
+        } @empty { <p class="card">No approved projects available. Ask faculty to publish projects for this term.</p> }
+      </div>
+    }
+  </main>
+</div>

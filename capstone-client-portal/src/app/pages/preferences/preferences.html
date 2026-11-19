@@ -1,0 +1,30 @@
+<div class="page">
+  <header class="site-header"><div><p class="eyebrow">US11 + US12 · STUDENT PREFERENCES</p><h1>Rank your projects</h1><p>Choose up to five approved projects. Move your favourite to rank #1.</p></div><a routerLink="/student-dashboard">Dashboard</a></header>
+  <main class="content"><div class="toolbar"><a routerLink="/projects">← Browse projects</a><span class="meta">Term: {{ term }}</span></div>
+    @if (loading) { <p>Loading your preferences…</p> }
+    @if (errorMessage) { <p class="error" role="alert">{{ errorMessage }}</p> }
+    @if (message) { <p class="success" role="status">{{ message }}</p> }
+    @if (!loading) {
+      <div class="split">
+        <section class="card"><h2>My ranking <span class="muted">({{ selected.length }}/5)</span></h2>
+          <p class="muted">Changes are only saved after you click Submit / Update.</p>
+          @for (id of selected; track id; let i = $index) {
+            <div class="rank-row"><strong class="rank">#{{ i + 1 }}</strong><span>{{ project(id)?.title }}</span>
+              <div class="row-actions"><button type="button" class="secondary" [disabled]="i === 0" (click)="move(i,-1)" [attr.aria-label]="'Move ' + project(id)?.title + ' up'">↑</button>
+              <button type="button" class="secondary" [disabled]="i === selected.length - 1" (click)="move(i,1)" [attr.aria-label]="'Move ' + project(id)?.title + ' down'">↓</button>
+              <button type="button" class="secondary" (click)="remove(id)" [attr.aria-label]="'Remove ' + project(id)?.title">×</button></div>
+            </div>
+          } @empty { <p class="muted">No projects selected yet. Add one from the list.</p> }
+          <button type="button" (click)="save()" [disabled]="saving || selected.length === 0">{{ saving ? 'Saving…' : 'Submit / Update Preferences' }}</button>
+          @if (submitted.length) { <p class="meta">Last submitted: {{ submitted[0].submittedAt | date:'medium' }}</p> }
+        </section>
+        <section class="card"><h2>Available projects</h2>
+          @for (item of available; track item.id) {
+            <div class="available-row"><span><strong>{{ item.title }}</strong><small>{{ item.term }}</small></span>
+              <button type="button" class="secondary" (click)="add(item.id)" [disabled]="selected.length >= 5">+ Add</button></div>
+          } @empty { <p class="muted">All available projects are in your ranking.</p> }
+        </section>
+      </div>
+    }
+  </main>
+</div>
