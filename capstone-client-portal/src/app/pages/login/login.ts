@@ -15,6 +15,13 @@ export class Login {
   errorMessage = '';
   isLoading = false;
 
+  // Invalid or empty fields should not enable the submit action.
+  get canSignIn(): boolean {
+    return !this.isLoading
+      && /^[a-z][a-z0-9._-]{2,39}$/.test(this.username.trim().toLowerCase())
+      && this.password.length > 0;
+  }
+
   onLogin(): void {
     this.errorMessage = '';
     const username = this.username.trim().toLowerCase();
