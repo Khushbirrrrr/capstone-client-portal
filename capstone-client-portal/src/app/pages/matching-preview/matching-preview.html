@@ -1,0 +1,34 @@
+<div class="page">
+  <header class="site-header"><div><p class="eyebrow">US13 · MATCHING PREVIEW</p>
+    <h1>Faculty matching recommendations</h1>
+    <p>Preview suggestions from the student preferences already saved in the portal.</p></div>
+    <a routerLink="/faculty-dashboard">Faculty dashboard</a></header>
+  <main class="content"><a routerLink="/faculty-dashboard">← Faculty dashboard</a>
+    <section class="card">
+      <h2>Generate recommendations</h2>
+      <p>This is a draft matching preview, not a published allocation. Recommendations must be reviewed by faculty.</p>
+      <label for="match-term">Teaching term</label>
+      <select id="match-term" name="match-term" [(ngModel)]="selectedTermId" (ngModelChange)="clearPreview()">
+        @for (term of terms; track term.id) { <option [ngValue]="term.id">{{ term.name }}</option> }
+      </select>
+      <button type="button" [disabled]="loading || generating || selectedTermId === null" (click)="generate()">
+        {{ generating ? 'Generating…' : 'Generate matching preview' }}
+      </button>
+      @if (errorMessage) { <p class="error" role="alert">{{ errorMessage }}</p> }
+    </section>
+    @if (result) {
+      <section class="card results"><h2>Suggested allocations — {{ result.term }}</h2>
+        <p>Score: first choice = 5 points, second = 4, through fifth = 1. Scores are summed per group.
+          Each project is suggested to at most one group. Groups are processed by ID.</p>
+        @for (item of result.recommendations; track item.groupId) {
+          <div class="match-item"><strong>{{ item.groupName }}</strong>
+            @if (item.status === 'RECOMMENDED') {
+              <span>{{ item.projectTitle }} · score {{ item.score }}</span>
+            } @else { <span class="error">Unresolved — {{ item.note }}</span> }
+          </div>
+        } @empty { <p>No groups exist for this term.</p> }
+        <p class="muted">Nothing has been saved, finalized or communicated to students.</p>
+      </section>
+    }
+  </main>
+</div>
