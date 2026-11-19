@@ -5,3 +5,10 @@ label { display: block; font-weight: 600; margin: 15px 0 8px; }
 input,select { display: block; width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 7px; box-sizing: border-box; }
 form { margin-top: 24px; }
 @media(max-width: 760px) { .split { grid-template-columns: 1fr; } }
+
+.member-entry { display: flex; align-items: end; gap: 8px; }
+.member-entry input { flex: 1; min-width: 0; }
+.member-entry button { white-space: nowrap; }
+.member-item { display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 10px; border-bottom: 1px solid #e2e8f0; }
+@media(max-width: 540px) { .member-entry { flex-direction: column; align-items: stretch; } }
