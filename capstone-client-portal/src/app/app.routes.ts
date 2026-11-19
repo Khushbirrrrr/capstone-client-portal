@@ -7,6 +7,7 @@ import { ProjectDetail } from './pages/project-detail/project-detail';
 import { Preferences } from './pages/preferences/preferences';
 import { FacultyManagement } from './pages/faculty-management/faculty-management';
 import { roleGuard } from './services/auth.guard';
+import { MatchingPreviewPage } from './pages/matching-preview/matching-preview';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'student-dashboard', component: StudentDashboard, canActivate: [roleGuard('STUDENT')] },
   { path: 'faculty-dashboard', component: FacultyDashboard, canActivate: [roleGuard('FACULTY')] },
   { path: 'faculty-management', component: FacultyManagement, canActivate: [roleGuard('FACULTY')] },
+  { path: 'matching-preview', component: MatchingPreviewPage, canActivate: [roleGuard('FACULTY')] },
   { path: 'projects', component: Projects, canActivate: [roleGuard('STUDENT')] },
   { path: 'projects/:id', component: ProjectDetail, canActivate: [roleGuard('STUDENT')] },
   { path: 'preferences', component: Preferences, canActivate: [roleGuard('STUDENT')] },
