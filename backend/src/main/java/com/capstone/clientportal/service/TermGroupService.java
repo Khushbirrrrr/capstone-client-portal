@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Locale;
 
 @Service
@@ -53,9 +55,14 @@ public class TermGroupService {
         Term term = terms.findById(termId).orElseThrow(() -> notFound("Term not found"));
         if (groups.existsByNameAndTermId(cleaned, termId)) throw bad("Group already exists in this term");
         if (usernames == null || usernames.isEmpty()) throw bad("Provide at least one student username");
+        // Enforce the limit on the server; frontend checks alone can be bypassed.
+        if (usernames.size() > 4) throw bad("A group can contain at most four students");
         List<AppUser> members = new ArrayList<>();
+        Set<String> uniqueUsernames = new HashSet<>();
         for (String username : usernames) {
             String key = username == null ? "" : username.trim().toLowerCase(Locale.ROOT);
+            if (!key.matches("[a-z][a-z0-9._-]{2,39}")) throw bad("Invalid student portal username");
+            if (!uniqueUsernames.add(key)) throw bad("Duplicate student username: " + key);
             AppUser member = users.findByUsername(key).orElseThrow(() -> bad("Unknown student username: " + key));
             if (!"STUDENT".equals(member.getRole()) || !member.isActive() || members.contains(member)) {
                 throw bad("Group members must be distinct active students");
