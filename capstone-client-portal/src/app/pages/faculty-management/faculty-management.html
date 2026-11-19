@@ -23,10 +23,24 @@
             <button class="secondary" type="button" (click)="removeGroup(group.id)">Delete</button></div>
         } @empty { <p class="muted">No groups created for this term.</p> }
         <form (ngSubmit)="createGroup()"><label for="group-name">New group name</label>
-          <input id="group-name" name="group-name" [(ngModel)]="groupName" placeholder="Group Alpha" required />
-          <label for="members">Member usernames (comma-separated)</label>
-          <input id="members" name="members" [(ngModel)]="usernames" placeholder="student-user" required />
-          <button type="submit" [disabled]="saving || selectedTermId === null">Create group</button></form>
+          <input id="group-name" name="group-name" [(ngModel)]="groupName" placeholder="Group Alpha"
+            required minlength="3" maxlength="80" />
+          <p class="muted">Use 3–80 characters for the group name.</p>
+          <label for="member-input">Add student portal username ({{ memberUsernames.length }}/4)</label>
+          <div class="member-entry">
+            <input id="member-input" name="member-input" [(ngModel)]="memberInput"
+              placeholder="student-user" minlength="3" maxlength="40"
+              [disabled]="memberUsernames.length >= 4" />
+            <button type="button" class="secondary" [disabled]="!canAddMember" (click)="addMember()">Add member</button>
+          </div>
+          <p class="muted">Add one student at a time. Maximum four; duplicate and invalid usernames cannot be added.</p>
+          @for (member of memberUsernames; track member) {
+            <div class="member-item"><span>{{ member }}</span>
+              <button type="button" class="secondary" (click)="removeMember(member)" [attr.aria-label]="'Remove ' + member">Remove</button>
+            </div>
+          } @empty { <p class="muted">No members added yet.</p> }
+          <button type="submit" [disabled]="!canCreateGroup">{{ saving ? 'Creating…' : 'Create group' }}</button>
+        </form>
       </section></div>
     }
   </main>
