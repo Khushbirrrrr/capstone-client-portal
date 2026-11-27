@@ -8,15 +8,16 @@
       <h2>Generate recommendations</h2>
       <p>This is a draft matching preview, not a published allocation. Recommendations must be reviewed by faculty.</p>
       <label for="match-term">Teaching term</label>
-      <select id="match-term" name="match-term" [(ngModel)]="selectedTermId" (ngModelChange)="clearPreview()">
+      <select id="match-term" name="match-term" [disabled]="generating || saving" [(ngModel)]="selectedTermId" (ngModelChange)="clearPreview()">
         @for (term of terms; track term.id) { <option [ngValue]="term.id">{{ term.name }}</option> }
       </select>
-      <button type="button" [disabled]="loading || generating || selectedTermId === null" (click)="generate()">
+      <button type="button" [disabled]="loading || generating || saving || selectedTermId === null" (click)="generate()">
         {{ generating ? 'Generating…' : 'Generate matching preview' }}
       </button>
+      <button type="button" [disabled]="saving || generating || selectedTermId === null" (click)="viewFinal()">View saved allocations</button>
       @if (errorMessage) { <p class="error" role="alert">{{ errorMessage }}</p> }
     </section>
-    @if (result) {
+    @if (result && !finalRows.length) {
       <section class="card results"><h2>Suggested allocations — {{ result.term }}</h2>
         <p>Score: first choice = 5 points, second = 4, through fifth = 1. Scores are summed per group.
           Each project is suggested to at most one group. Groups are processed by ID.</p>
@@ -27,7 +28,21 @@
             } @else { <span class="error">Unresolved — {{ item.note }}</span> }
           </div>
         } @empty { <p>No groups exist for this term.</p> }
-        <p class="muted">Nothing has been saved, finalized or communicated to students.</p>
+        <h3>Review or override assignments</h3>
+        @for (choice of choices; track choice.groupId; let i = $index) {
+          <div class="match-item">
+            <strong>{{ result.recommendations[i].groupName }}</strong>
+            <label>Project <select [(ngModel)]="choice.projectId" [disabled]="saving"><option [ngValue]="null">Unresolved</option>@for (option of options; track option.id) {<option [ngValue]="option.id">{{ option.title }}</option>}</select></label>
+            <label>Override reason <input [(ngModel)]="choice.reason" maxlength="500" [disabled]="saving" placeholder="Required if assignment changes"></label>
+          </div>
+        }
+        <button type="button" [disabled]="saving || generating || !options.length || !choices.length" (click)="confirm()">Confirm final allocations</button>
+        <p class="muted">Draft edits are not saved until confirmation. All groups must have distinct approved projects.</p>
+      </section>
+    }
+    @if (finalRows.length) {
+      <section class="card"><h2>Saved final allocations</h2>
+      @for (row of finalRows; track row.groupId) {<div class="match-item"><strong>{{ row.groupName }}</strong><span>{{ row.projectTitle }}</span><span>Confirmed by {{ row.confirmedBy }}</span>@if (row.reason) {<span>Override: {{ row.reason }}</span>}</div>}
       </section>
     }
   </main>

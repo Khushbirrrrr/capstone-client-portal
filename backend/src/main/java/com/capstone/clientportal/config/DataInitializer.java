@@ -53,7 +53,7 @@ public class DataInitializer {
             }
             String studentName = validUsername(studentUsername);
             String facultyName = validUsername(facultyUsername);
-            if (studentName.equals(facultyName)) throw new IllegalStateException("Demo usernames must differ");
+            if (studentName.equals(facultyName) || facultyName.equals("student_demo2") || studentName.equals("student_demo2")) throw new IllegalStateException("Demo usernames must differ");
             demoUser(users, encoder, studentName, "STUDENT", studentPassword);
             demoUser(users, encoder, "student_demo2", "STUDENT", studentPassword);
             demoUser(users, encoder, facultyName, "FACULTY", facultyPassword);
